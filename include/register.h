@@ -3,6 +3,8 @@
 
 #include <types.h>
 
+#define SID_BASE	0x01c23800
+
 void writel(u32, u32);
 u32 readl(u32);
 

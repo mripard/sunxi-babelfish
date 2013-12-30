@@ -19,7 +19,8 @@ COMMON_OBJS 	:= \
 			memory.o \
 			print.o \
 			register.o \
-			serial-8250.o
+			serial-8250.o \
+			soc.o
 
 DTB_BINS 	:= \
 			sun4i-a10.dtb-bin \
