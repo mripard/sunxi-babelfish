@@ -16,6 +16,7 @@ LDFLAGS		+= -Ttext $(LOADADDR)
 
 COMMON_OBJS 	:= \
 			main.o \
+			memory.o \
 			print.o \
 			register.o \
 			serial-8250.o
