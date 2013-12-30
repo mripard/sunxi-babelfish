@@ -20,6 +20,13 @@ COMMON_OBJS 	:= \
 			register.o \
 			serial-8250.o
 
+DTB_BINS 	:= \
+			sun4i-a10.dtb-bin \
+			sun5i-a10s.dtb-bin \
+			sun5i-a13.dtb-bin \
+			sun6i-a31.dtb-bin \
+			sun7i-a20.dtb-bin
+
 all: uImage
 
 version.h:
@@ -30,8 +37,15 @@ out/%.o: src/%.c
 	mkdir -p out
 	$(CC) $(CFLAGS) -c -o $@ $^
 
-babelfish: version.h $(addprefix out/, $(COMMON_OBJS))
-	$(LD) $(LDFLAGS) -o $@ $(addprefix out/, $(COMMON_OBJS))
+out/%.dtb: dtsi/%.dtsi
+	mkdir -p out
+	$(DTC) -I dts -O dtb -o $@ $^
+
+out/%.dtb-bin: out/%.dtb
+	$(OBJCOPY) -I binary -O elf32-littlearm -B arm --rename-section .data=.$(notdir $*) $^ $@
+
+babelfish: version.h $(addprefix out/, $(COMMON_OBJS)) $(addprefix out/, $(DTB_BINS))
+	$(LD) $(LDFLAGS) -o $@ $(addprefix out/, $(COMMON_OBJS)) $(addprefix out/, $(DTB_BINS))
 
 babelfish.bin: babelfish
 	$(OBJCOPY) -O binary --set-section-flags .bss=alloc,load,contents $^ $@
