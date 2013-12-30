@@ -1,3 +1,8 @@
+/*
+ * Original code taken from pxa-impedance-matcher, written by Jason
+ * Cooper <jason@lakedaemon.net>
+ */
+
 #include <types.h>
 
 inline void writel(u32 val, u32 addr)

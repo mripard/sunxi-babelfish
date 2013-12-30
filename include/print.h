@@ -1,3 +1,8 @@
+/*
+ * Original code taken from pxa-impedance-matcher, written by Daniel
+ * Mack <zonque@gmail.com>
+ */
+
 #ifndef _PRINT_H
 #define _PRINT_H
 

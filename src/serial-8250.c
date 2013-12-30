@@ -1,3 +1,8 @@
+/*
+ * Original code taken from pxa-impedance-matcher, written by Jason
+ * Cooper <jason@lakedaemon.net>
+ */
+
 #include <register.h>
 #include <serial.h>
 #include <types.h>

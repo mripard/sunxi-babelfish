@@ -1,0 +1,17 @@
+Allwinner Babelfish
+-------------------
+
+sunxi-babelfish is a late-stage bootloader for Allwinner-based devices
+that are unable to boot a DT-based Linux kernel, mostly because a DT
+has not been written for this board yet.
+
+It behaves as a fex-based kernel image, using the fex file to generate
+the DT that the kernel will use afterwards.
+
+To do so, it also uses the mach-id passed from the bootloader and the
+DTSI that are embedded into the babelfish binary to construct a DTB
+that the kernel will be able to use.
+
+This is loosely based on pxa-impedance-matcher from Daniel Mack
+(https://github.com/zonque/pxa-impedance-matcher), from a conceptual
+point-of-view but some code have been taken directly from it.

@@ -1,3 +1,8 @@
+/*
+ * Original code taken from pxa-impedance-matcher, written by Jason
+ * Cooper <jason@lakedaemon.net>
+ */
+
 #ifndef _REGISTER_H
 #define _REGISTER_H
 

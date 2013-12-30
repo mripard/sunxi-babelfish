@@ -1,3 +1,8 @@
+/*
+ * Original code taken from pxa-impedance-matcher, written by Daniel
+ * Mack <zonque@gmail.com>
+ */
+
 #ifndef _ATAG_H
 #define _ATAG_H
 
