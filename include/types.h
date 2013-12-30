@@ -3,4 +3,6 @@
 
 typedef unsigned long u32;
 
+typedef unsigned int size_t;
+
 #endif
