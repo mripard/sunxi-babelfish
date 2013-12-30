@@ -4,11 +4,11 @@
 #include <soc.h>
 #include <types.h>
 
-extern void *_binary_out_sun4i_a10_dtb_start;
-extern void *_binary_out_sun5i_a10s_dtb_start;
-extern void *_binary_out_sun5i_a13_dtb_start;
-extern void *_binary_out_sun6i_a31_dtb_start;
-extern void *_binary_out_sun7i_a20_dtb_start;
+extern void *_binary_sun4i_a10_dtb_start;
+extern void *_binary_sun5i_a10s_dtb_start;
+extern void *_binary_sun5i_a13_dtb_start;
+extern void *_binary_sun6i_a31_dtb_start;
+extern void *_binary_sun7i_a20_dtb_start;
 
 struct soc *match_soc(u32 machid)
 {
@@ -17,7 +17,7 @@ struct soc *match_soc(u32 machid)
 
 	switch (machid) {
 	case MACHID_A10:
-		soc->fdt = _binary_out_sun4i_a10_dtb_start;
+		soc->fdt = _binary_sun4i_a10_dtb_start;
 		soc->compatible = COMPATIBLE_A10;
 		break;
 
@@ -30,12 +30,12 @@ struct soc *match_soc(u32 machid)
 
 		switch ((sid_detect >> 12) & 0xf) {
 		case 3:
-			soc->fdt = _binary_out_sun5i_a13_dtb_start;
+			soc->fdt = _binary_sun5i_a13_dtb_start;
 			soc->compatible = COMPATIBLE_A13;
 			break;
 
 		case 7:
-			soc->fdt = _binary_out_sun5i_a10s_dtb_start;
+			soc->fdt = _binary_sun5i_a10s_dtb_start;
 			soc->compatible = COMPATIBLE_A10S;
 			break;
 		}
@@ -43,12 +43,12 @@ struct soc *match_soc(u32 machid)
 
 	case MACHID_A20:
 	case MACHID_A20_ALTERNATE:
-		soc->fdt = _binary_out_sun7i_a20_dtb_start;
+		soc->fdt = _binary_sun7i_a20_dtb_start;
 		soc->compatible = COMPATIBLE_A20;
 		break;
 
 	case MACHID_A31:
-		soc->fdt = _binary_out_sun6i_a31_dtb_start;
+		soc->fdt = _binary_sun6i_a31_dtb_start;
 		soc->compatible = COMPATIBLE_A31;
 		break;
 
