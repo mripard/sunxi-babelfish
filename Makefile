@@ -4,8 +4,9 @@ OBJCOPY		:= $(CROSS_COMPILE)objcopy
 LD		:= $(CROSS_COMPILE)ld
 DTC		:= dtc
 
-CFLAGS		:= -Wall -ffreestanding
+CFLAGS		:= -Wall -ffreestanding -nostdinc
 CFLAGS		+= -I$(CURDIR)/include -I$(CURDIR)/include/generated
+CFLAGS		+= -D__KERNEL__
 
 LOADADDR	:= 0x40008000
 
