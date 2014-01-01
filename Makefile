@@ -20,11 +20,12 @@ define my-dir
 $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 endef
 
-include lib/Makefile
-OBJS += $(addprefix $(FILE_PATH), $(FILE_OBJS))
+define register-objs
+OBJS += $(addprefix $(1), $(2))
+endef
 
+include lib/Makefile
 include src/Makefile
-OBJS += $(addprefix $(FILE_PATH), $(FILE_OBJS))
 
 OBJS := $(addprefix out/, $(OBJS))
 
