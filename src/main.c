@@ -4,12 +4,18 @@
 #include <types.h>
 #include <version.h>
 
+#include <lib/libfex/script_bin.h>
+
+#define SCRIPT_BASE_ADDRESS	(void*)0x43000000
+
 void main(u32 dummy, u32 machid, const struct tag *tags)
 	__attribute__((section(".text_main")));
 
 void main(u32 dummy, u32 machid, const struct tag *tags)
 {
+	struct script *script;
 	struct soc *soc;
+	int ret;
 
 	putstr("++ Allwinner Babelfish ");
 	putstr(VERSION);
@@ -24,5 +30,9 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 		putstr("Unknown.");
 	putstr("\n");
 
-	return 0;
+	script = script_new();
+	ret = script_decompile_bin(SCRIPT_BASE_ADDRESS, script);
+	if (!ret)
+		return;
+
 }
