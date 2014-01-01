@@ -4,5 +4,6 @@
 #include <types.h>
 
 void *malloc(size_t size);
+static inline void free(void *ptr) {};
 
 #endif
