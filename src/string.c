@@ -81,8 +81,25 @@ char *strchr(const char *s, int c)
 
 int strcmp(const char *s1, const char *s2)
 {
-	while ((*s1++ == *s2++) && *s1);
-	return (*(unsigned char *)--s1 - *(unsigned char *)--s2);
+	int s1len, s2len;
+	int i, res;
+
+	s1len = strlen(s1);
+	s2len = strlen(s2);
+
+	if (s1len < s2len)
+		return -1;
+
+	if (s1len > s2len)
+		return 1;
+
+	for (i = 0; i < s1len; i++) {
+		res = s1[i] - s2[i];
+		if (res)
+			return res;
+	}
+
+	return 0;
 }
 
 char *strcpy(char *dest, const char *src)
