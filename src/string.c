@@ -59,6 +59,19 @@ void *memset(void *s, int c, size_t n)
 	return s;
 }
 
+char *strcat(char *dest, const char *src)
+{
+	size_t destlen = strlen(dest);
+	int i;
+
+	for (i = 0; i < strlen(src); i++)
+		dest[destlen + i] = src[i];
+
+	dest[destlen + i] = '\0';
+
+	return dest;
+}
+
 char *strchr(const char *s, int c)
 {
 	while ((*s++ != c) && *s);
@@ -72,6 +85,17 @@ int strcmp(const char *s1, const char *s2)
 	return (*(unsigned char *)--s1 - *(unsigned char *)--s2);
 }
 
+char *strcpy(char *dest, const char *src)
+{
+	size_t srclen = strlen(src);
+
+	memcpy(dest, src, srclen);
+
+	dest[srclen] = '\0';
+
+	return dest;
+}
+
 size_t strlen(const char *s)
 {
 	size_t i = 0;
@@ -81,3 +105,16 @@ size_t strlen(const char *s)
 
 	return i;
 }
+
+char *strncat(char *dest, const char *src, size_t n)
+{
+	size_t destlen = strlen(dest);
+	int i;
+
+	for (i = 0; i < strlen(src) && i < n; i++)
+		dest[destlen + i] = src[i];
+
+	dest[destlen + i] = '\0';
+
+	return dest;
+};
