@@ -19,6 +19,10 @@ LDFLAGS		+= -Ttext $(LOADADDR)
 OBJS		:=
 DTBS		:=
 
+ifndef ZIMAGE
+$(error Please provide the path to the zImage)
+endif
+
 define my-dir
 $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 endef
@@ -51,8 +55,14 @@ version.h:
 	mkdir -p include/generated
 	./genver.sh > include/generated/version.h
 
-babelfish: version.h $(OBJS) $(DTBS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(DTBS)
+out/zImage.bin: $(ZIMAGE)
+	cp $(ZIMAGE) $@
+	(cd $(dir $@); \
+	$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
+		--rename-section .data=.$(notdir $*) $(notdir $@) $(notdir $@);)
+
+babelfish: version.h $(OBJS) $(DTBS) out/zImage.bin
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(DTBS) out/zImage.bin
 
 babelfish.bin: babelfish
 	$(OBJCOPY) -O binary --set-section-flags .bss=alloc,load,contents $^ $@
