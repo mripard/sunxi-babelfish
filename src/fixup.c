@@ -6,13 +6,15 @@
 
 #define CONSOLE_MAX_LEN		255
 
+#define SUNXI_MAX_UARTS		8
+
 int fdt_fixup(struct soc *soc, void *fdt, struct script *script)
 {
 	struct script_section *section;
 	struct script_string_entry *str_entry;
 	struct script_single_entry *sword_entry;
-	char *bootargs;
-	int ret, offset;
+	char *alias, *uart_fex_name, *bootargs;
+	int ret, offset, i;
 	char idx;
 
 	bootargs = malloc(CONSOLE_MAX_LEN);
@@ -38,6 +40,27 @@ int fdt_fixup(struct soc *soc, void *fdt, struct script *script)
 	strcat(bootargs, "console=ttyS");
 	strncat(bootargs, &idx, 1);
 	strcat(bootargs, ",115200 ");
+
+	/* Enable the various UARTs */
+	uart_fex_name = malloc(strlen("uart_para") + 2);
+	alias = malloc(strlen("serial") + 2);
+	for (i = 0; i < SUNXI_MAX_UARTS; i++) {
+		idx = '0' + i;
+
+		strcpy(uart_fex_name, "uart_para");
+		strncat(uart_fex_name, &idx, 1);
+
+		section = script_find_section(script, uart_fex_name);
+		sword_entry = (struct script_single_entry *)script_find_entry(section, "uart_used");
+
+		if (sword_entry->value == 1) {
+			strcpy(alias, "serial");
+			strncat(alias, &idx, 1);
+
+			offset = fdt_path_offset(fdt, alias);
+			ret = fdt_setprop_string(fdt, offset, "status", "okay");
+		}
+	}
 
 	/* Set bootargs */
 	offset = fdt_path_offset(fdt, "/chosen");
