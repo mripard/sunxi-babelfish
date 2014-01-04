@@ -8,6 +8,14 @@
 
 #define SUNXI_MAX_UARTS		8
 
+#define GPIO_ENTRY_TO_STRUCT(array, idx, entry)				\
+	do {								\
+		array[idx].port = entry->port;				\
+		array[idx].port_num = entry->port_num;			\
+		array[idx].drive = entry->data[1];			\
+		array[idx].pull = entry->data[2];			\
+	} while (0)
+
 struct gpio {
 	uint32_t port;
 	uint32_t port_num;
@@ -162,12 +170,14 @@ static int fdt_fixup_uarts(struct soc *soc, void *fdt, struct script *script)
 {
 	struct script_single_entry *entry;
 	struct script_section *section;
-	char *fex_name, *alias, idx;
 	int offset, ret, i;
+	struct gpio *gpios;
 
-	fex_name = malloc(strlen("uart_para") + 2);
-	alias = malloc(strlen("serial") + 2);
 	for (i = 0; i < SUNXI_MAX_UARTS; i++) {
+		struct script_gpio_entry *gpio_entry;
+		char fex_name[16], dt_name[8], alias[8];
+		char idx;
+
 		idx = '0' + i;
 
 		strcpy(fex_name, "uart_para");
@@ -176,15 +186,65 @@ static int fdt_fixup_uarts(struct soc *soc, void *fdt, struct script *script)
 		section = script_find_section(script, fex_name);
 		entry = (struct script_single_entry *)script_find_entry(section, "uart_used");
 
-		if (entry->value == 1) {
-			strcpy(alias, "serial");
-			strncat(alias, &idx, 1);
+		if (entry->value != 1)
+			continue;
 
-			offset = fdt_path_offset(fdt, alias);
-			ret = fdt_setprop_string(fdt, offset, "status", "okay");
-			if (ret)
-				return ret;
+		strcpy(alias, "serial");
+		strncat(alias, &idx, 1);
+
+		offset = fdt_path_offset(fdt, alias);
+		ret = fdt_setprop_string(fdt, offset, "status", "okay");
+		if (ret)
+			return ret;
+
+		entry = (struct script_single_entry *)
+			script_find_entry(section, "uart_type");
+
+		gpios = malloc(entry->value * sizeof(*gpios));
+
+		switch (entry->value) {
+		case 8:
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_dtr");
+			GPIO_ENTRY_TO_STRUCT(gpios, 7, gpio_entry);
+
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_dsr");
+			GPIO_ENTRY_TO_STRUCT(gpios, 6, gpio_entry);
+
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_dcd");
+			GPIO_ENTRY_TO_STRUCT(gpios, 5, gpio_entry);
+
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_ring");
+			GPIO_ENTRY_TO_STRUCT(gpios, 4, gpio_entry);
+		case 4:
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_cts");
+			GPIO_ENTRY_TO_STRUCT(gpios, 3, gpio_entry);
+
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_rts");
+			GPIO_ENTRY_TO_STRUCT(gpios, 2, gpio_entry);
+		case 2:
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_rx");
+			GPIO_ENTRY_TO_STRUCT(gpios, 1, gpio_entry);
+
+			gpio_entry = (struct script_gpio_entry *)
+				script_find_entry(section, "uart_tx");
+			GPIO_ENTRY_TO_STRUCT(gpios, 0, gpio_entry);
+			break;
+		default:
+			continue;
 		}
+
+		strcpy(dt_name, "uart");
+		strncat(dt_name, &idx, 1);
+
+		fdt_fixup_add_pinctrl_group(fdt, offset, gpios, entry->value,
+					    dt_name);
 	}
 
 	return 0;
