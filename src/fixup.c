@@ -4,6 +4,8 @@
 #include <print.h>
 #include <string.h>
 
+#define FIXUP_BASE_CMDLINE	"earlyprintk"
+
 #define CONSOLE_MAX_LEN		255
 
 #define SUNXI_MAX_UARTS		8
@@ -110,26 +112,12 @@ static int fdt_fixup_add_pinctrl_group(void *fdt, int parent_offset,
 	return 0;
 }
 
-static int fdt_fixup_bootargs(struct soc *soc, void *fdt, struct script *script)
+static int fdt_fixup_append_bootargs(void *fdt, char *bootargs)
 {
-	struct script_single_entry *entry;
-	struct script_section *section;
-	char *bootargs, idx;
-	int offset, ret;
+	int offset, ret, len;
+	const char *old_args = NULL;
+	char *new_args;
 
-	bootargs = malloc(CONSOLE_MAX_LEN);
-	strcpy(bootargs, "earlyprintk ");
-
-	/* Set default UART to output on */
-	section = script_find_section(script, "uart_para");
-	entry = (struct script_single_entry *)script_find_entry(section, "uart_debug_port");
-	idx = '0' + entry->value;
-
-	strcat(bootargs, "console=ttyS");
-	strncat(bootargs, &idx, 1);
-	strcat(bootargs, ",115200 ");
-
-	/* Set bootargs */
 	offset = fdt_path_offset(fdt, "/chosen");
 	if (offset < 0) {
 		offset = fdt_add_subnode(fdt, 0, "chosen");
@@ -138,11 +126,24 @@ static int fdt_fixup_bootargs(struct soc *soc, void *fdt, struct script *script)
 			return offset;
 	}
 
-	ret = fdt_setprop_string(fdt, offset, "bootargs", bootargs);
+	old_args = fdt_getprop(fdt, offset, "bootargs", &len);
+
+	if (len > 0) {
+		new_args = malloc(len + strlen(bootargs) + 2);
+		strcpy(new_args, old_args);
+		strcat(new_args, " ");
+		strcat(new_args, bootargs);
+	} else {
+		new_args = malloc(strlen(bootargs) + 2);
+		strcpy(new_args, bootargs);
+	}
+
+	ret = fdt_setprop_string(fdt, offset, "bootargs", new_args);
 	if (ret < 0)
 		return ret;
 
 	return 0;
+
 }
 
 static int fdt_fixup_machine(struct soc *soc, void *fdt, struct script *script)
@@ -171,12 +172,24 @@ static int fdt_fixup_uarts(struct soc *soc, void *fdt, struct script *script)
 	struct script_single_entry *entry;
 	struct script_section *section;
 	int offset, ret, i;
-	struct gpio *gpios;
+	char bootargs[64];
+	char idx;
+
+	/* Set default UART to output on */
+	section = script_find_section(script, "uart_para");
+	entry = (struct script_single_entry *)script_find_entry(section, "uart_debug_port");
+	idx = '0' + entry->value;
+
+	strcpy(bootargs, "console=ttyS");
+	strncat(bootargs, &idx, 1);
+	strcat(bootargs, ",115200");
+
+	fdt_fixup_append_bootargs(fdt, bootargs);
 
 	for (i = 0; i < SUNXI_MAX_UARTS; i++) {
 		struct script_gpio_entry *gpio_entry;
 		char fex_name[16], dt_name[8], alias[8];
-		char idx;
+		struct gpio *gpios;
 
 		idx = '0' + i;
 
@@ -254,11 +267,11 @@ int fdt_fixup(struct soc *soc, void *fdt, struct script *script)
 {
 	int ret;
 
-	ret = fdt_fixup_machine(soc, fdt, script);
+	ret = fdt_fixup_append_bootargs(fdt, FIXUP_BASE_CMDLINE);
 	if (ret)
 		return ret;
 
-	ret = fdt_fixup_bootargs(soc, fdt, script);
+	ret = fdt_fixup_machine(soc, fdt, script);
 	if (ret)
 		return ret;
 
