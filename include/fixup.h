@@ -4,6 +4,8 @@
 #include <script.h>
 #include <soc.h>
 
-int fdt_fixup(struct soc *soc, void *fdt, struct script *script);
+#include <uapi/asm/setup.h>
+
+int fdt_fixup(struct soc *soc, void *fdt, struct script *script, struct tag *atags);
 
 #endif

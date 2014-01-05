@@ -4,6 +4,8 @@
 #include <print.h>
 #include <string.h>
 
+#include <uapi/asm/setup.h>
+
 #define FIXUP_BASE_CMDLINE	"earlyprintk"
 
 #define CONSOLE_MAX_LEN		255
@@ -263,11 +265,51 @@ static int fdt_fixup_uarts(struct soc *soc, void *fdt, struct script *script)
 	return 0;
 }
 
-int fdt_fixup(struct soc *soc, void *fdt, struct script *script)
+static int fdt_fixup_atags(void *fdt, struct tag *atags)
+{
+	struct tag *atag = atags;
+	uint32_t mem_reg[2];
+	int offset;
+
+	for_each_tag(atag, atags) {
+		if (atag->hdr.tag == ATAG_CMDLINE) {
+			fdt_fixup_append_bootargs(fdt, atag->u.cmdline.cmdline);
+		} else if (atag->hdr.tag == ATAG_MEM) {
+
+			if (!atag->u.mem.size)
+				continue;
+
+			mem_reg[0] = cpu_to_fdt32(atag->u.mem.start);
+			mem_reg[1] = cpu_to_fdt32(atag->u.mem.size);
+
+			offset = fdt_path_offset(fdt, "/memory");
+			fdt_setprop(fdt, offset, "reg", mem_reg, sizeof(mem_reg));
+		} else if (atag->hdr.tag == ATAG_INITRD2) {
+			uint32_t initrd_start, initrd_size;
+
+			initrd_start = atag->u.initrd.start;
+			initrd_size = atag->u.initrd.size;
+
+			offset = fdt_path_offset(fdt, "/chosen");
+			fdt_setprop_cell(fdt, offset, "linux,initrd-start",
+					 initrd_start);
+			fdt_setprop_cell(fdt, offset, "linux,initrd-end",
+					 initrd_start + initrd_size);
+		}
+	}
+
+	return 0;
+}
+
+int fdt_fixup(struct soc *soc, void *fdt, struct script *script, struct tag *atags)
 {
 	int ret;
 
 	ret = fdt_fixup_append_bootargs(fdt, FIXUP_BASE_CMDLINE);
+	if (ret)
+		return ret;
+
+	ret = fdt_fixup_atags(fdt, atags);
 	if (ret)
 		return ret;
 

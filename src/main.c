@@ -1,4 +1,3 @@
-#include <atags.h>
 #include <fixup.h>
 #include <print.h>
 #include <soc.h>
@@ -6,6 +5,8 @@
 #include <version.h>
 
 #include <libfdt.h>
+
+#include <uapi/asm/setup.h>
 
 #include <lib/libfex/script_bin.h>
 
@@ -45,7 +46,7 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 		return;
 
 	ret = fdt_open_into(soc->fdt, FDT_BASE_ADDRESS, 2 * fdt_totalsize(soc->fdt));
-	ret = fdt_fixup(soc, FDT_BASE_ADDRESS, script);
+	ret = fdt_fixup(soc, FDT_BASE_ADDRESS, script, tags);
 	if (ret) {
 		putstr("Error in fdt_fixup ");
 		printhex(ret);
