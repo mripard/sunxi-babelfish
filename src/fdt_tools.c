@@ -149,7 +149,7 @@ int fdt_add_pinctrl_group(void *fdt, char *pinctrl_path,
 		}
 
 		strcpy(pin, "P");
-		idx = 'A' + gpios[i].port;
+		idx = 'A' + gpios[i].port - 1;
 		strncat(pin, &idx, 1);
 
 		idx = '0' + (gpios[i].port_num / 10);
