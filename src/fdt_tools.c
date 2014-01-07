@@ -139,6 +139,7 @@ int fdt_add_pinctrl_group(void *fdt, char *pinctrl_path,
 
 			/* Create the pinctrl- property in the device node */
 			phandle = fdt_create_phandle(fdt, offset);
+			parent_offset = fdt_path_offset(fdt, parent_path);
 			fdt_setprop_u32(fdt, parent_offset, pctrl_prop,
 					phandle);
 		}
