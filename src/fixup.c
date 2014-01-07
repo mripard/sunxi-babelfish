@@ -1,3 +1,4 @@
+#include <fdt_tools.h>
 #include <fixup.h>
 #include <libfdt.h>
 #include <memory.h>
@@ -6,113 +7,10 @@
 
 #include <uapi/asm/setup.h>
 
+#define FDT_PINCTRL_PATH	"/soc@01c00000/pinctrl@01c20800"
 #define FIXUP_BASE_CMDLINE	"earlyprintk"
-
 #define CONSOLE_MAX_LEN		255
-
 #define SUNXI_MAX_UARTS		8
-
-#define GPIO_ENTRY_TO_STRUCT(array, idx, entry)				\
-	do {								\
-		array[idx].port = entry->port;				\
-		array[idx].port_num = entry->port_num;			\
-		array[idx].drive = entry->data[1];			\
-		array[idx].pull = entry->data[2];			\
-	} while (0)
-
-struct gpio {
-	uint32_t port;
-	uint32_t port_num;
-	uint32_t drive;
-	uint32_t pull;
-};
-
-static int fdt_fixup_add_pinctrl_group(void *fdt, int parent_offset,
-				       struct gpio *gpios, size_t ngpios,
-				       char *device)
-{
-	int pctrl_offset, i, ngroup = 0;
-
-	pctrl_offset = fdt_path_offset(fdt, "/soc@01c00000/pinctrl@01c20800");
-	if (pctrl_offset < 0)
-		return pctrl_offset;
-
-	for (i = 0; i < ngpios; i++) {
-		char name[64], pin[8], idx;
-		int offset;
-
-		strcpy(name, device);
-		strcat(name, "_pins_babelfish");
-
-		switch (gpios[i].pull) {
-		case 1:
-			strcat(name, "_pullup");
-			break;
-		case 2:
-			strcat(name, "_pulldown");
-			break;
-		}
-
-		switch (gpios[i].drive) {
-		case 1:
-			strcat(name, "_20mA");
-			break;
-		case 2:
-			strcat(name, "_30mA");
-			break;
-		case 3:
-			strcat(name, "_40mA");
-			break;
-		}
-
-		offset = fdt_subnode_offset(fdt, pctrl_offset, name);
-		if (offset < 0) {
-			char pctrl_prop[16];
-			uint32_t phandle;
-
-			/* Create the new pinctrl node */
-			offset = fdt_add_subnode(fdt, pctrl_offset, name);
-			if (offset < 0)
-				return offset;
-
-			/* Setup the properties */
-			fdt_setprop_u32(fdt, offset, "allwinner,drive",
-					gpios[i].drive);
-			fdt_setprop_u32(fdt, offset, "allwinner,pull",
-					gpios[i].pull);
-			fdt_setprop_string(fdt, offset, "allwinner,function",
-					   device);
-
-			/* Register one new default group in the device node */
-			fdt_appendprop_string(fdt, parent_offset,
-					      "pinctrl-names", "default");
-
-			/* Build up the property name for the parent */
-			strcpy(pctrl_prop, "pinctrl-");
-			idx = '0' + ngroup++;
-			strncat(pctrl_prop, &idx, 1);
-
-			/* Create the pinctrl- property in the device node */
-			phandle = fdt_get_phandle(fdt, offset);
-			fdt_setprop_cell(fdt, parent_offset, pctrl_prop,
-					 phandle);
-		}
-
-		strcpy(pin, "P");
-		idx = 'A' + gpios[i].port;
-		strncat(pin, &idx, 1);
-
-		idx = '0' + (gpios[i].port_num / 10);
-		strncat(pin, &idx, 1);
-
-		idx = '0' + (gpios[i].port_num % 10);
-		strncat(pin, &idx, 1);
-
-		fdt_appendprop_string(fdt, offset, "allwinner,pins", pin);
-	}
-
-	return 0;
-}
 
 static int fdt_fixup_append_bootargs(void *fdt, char *bootargs)
 {
@@ -258,8 +156,8 @@ static int fdt_fixup_uarts(struct soc *soc, void *fdt, struct script *script)
 		strcpy(dt_name, "uart");
 		strncat(dt_name, &idx, 1);
 
-		fdt_fixup_add_pinctrl_group(fdt, offset, gpios, entry->value,
-					    dt_name);
+		fdt_add_pinctrl_group(fdt, FDT_PINCTRL_PATH, alias, gpios, entry->value,
+				      dt_name);
 	}
 
 	return 0;

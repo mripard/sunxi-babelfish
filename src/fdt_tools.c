@@ -70,3 +70,91 @@ unsigned int fdt_create_phandle(void *fdt, int nodeoffset)
 
 	return phandle;
 }
+
+int fdt_add_pinctrl_group(void *fdt, char *pinctrl_path,
+			  char *parent_path, struct gpio *gpios,
+			  size_t ngpios, char *device)
+{
+	int parent_offset, pctrl_offset, i, ngroup = 0;
+
+	pctrl_offset = fdt_path_offset(fdt, pinctrl_path);
+	if (pctrl_offset < 0)
+		return pctrl_offset;
+
+	for (i = 0; i < ngpios; i++) {
+		char name[64], pin[8], idx;
+		int offset;
+
+		strcpy(name, device);
+		strcat(name, "_pins_babelfish");
+
+		switch (gpios[i].pull) {
+		case 1:
+			strcat(name, "_pullup");
+			break;
+		case 2:
+			strcat(name, "_pulldown");
+			break;
+		}
+
+		switch (gpios[i].drive) {
+		case 1:
+			strcat(name, "_20mA");
+			break;
+		case 2:
+			strcat(name, "_30mA");
+			break;
+		case 3:
+			strcat(name, "_40mA");
+			break;
+		}
+
+		offset = fdt_subnode_offset(fdt, pctrl_offset, name);
+		if (offset < 0) {
+			char pctrl_prop[16];
+			uint32_t phandle;
+
+			/* Create the new pinctrl node */
+			offset = fdt_add_subnode(fdt, pctrl_offset, name);
+			if (offset < 0)
+				return offset;
+
+			/* Setup the properties */
+			fdt_setprop_u32(fdt, offset, "allwinner,drive",
+					gpios[i].drive);
+			fdt_setprop_u32(fdt, offset, "allwinner,pull",
+					gpios[i].pull);
+			fdt_setprop_string(fdt, offset, "allwinner,function",
+					   device);
+
+			/* Register one new default group in the device node */
+			parent_offset = fdt_path_offset(fdt, parent_path);
+			fdt_appendprop_string(fdt, parent_offset,
+					      "pinctrl-names", "default");
+
+			/* Build up the property name for the parent */
+			strcpy(pctrl_prop, "pinctrl-");
+			idx = '0' + ngroup++;
+			strncat(pctrl_prop, &idx, 1);
+
+			/* Create the pinctrl- property in the device node */
+			phandle = fdt_get_phandle(fdt, offset);
+			fdt_setprop_u32(fdt, parent_offset, pctrl_prop,
+					phandle);
+		}
+
+		strcpy(pin, "P");
+		idx = 'A' + gpios[i].port;
+		strncat(pin, &idx, 1);
+
+		idx = '0' + (gpios[i].port_num / 10);
+		strncat(pin, &idx, 1);
+
+		idx = '0' + (gpios[i].port_num % 10);
+		strncat(pin, &idx, 1);
+
+		fdt_appendprop_string(fdt, offset, "allwinner,pins", pin);
+	}
+
+	return 0;
+}
