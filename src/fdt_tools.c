@@ -95,6 +95,8 @@ int fdt_add_pinctrl_group(void *fdt, char *pinctrl_path,
 		case 2:
 			strcat(name, "_pulldown");
 			break;
+		default:
+			gpios[i].pull = 0;
 		}
 
 		switch (gpios[i].drive) {
@@ -107,6 +109,8 @@ int fdt_add_pinctrl_group(void *fdt, char *pinctrl_path,
 		case 3:
 			strcat(name, "_40mA");
 			break;
+		default:
+			gpios[i].drive = 0;
 		}
 
 		offset = fdt_subnode_offset(fdt, pctrl_offset, name);
