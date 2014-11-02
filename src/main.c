@@ -54,7 +54,7 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 		return;
 	}
 
-	start_kernel = &_binary_zImage_bin_start;
+	start_kernel = (void (*) (u32, u32, void*)) &_binary_zImage_bin_start;
 	putstr("Booting Linux...\n");
 	start_kernel(0, 0xffffffff, FDT_BASE_ADDRESS);
 }
