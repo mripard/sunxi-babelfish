@@ -7,7 +7,6 @@ DTC		:= dtc
 CFLAGS		:= -Wall -ffreestanding -nostdinc
 CFLAGS		+= -I$(CURDIR)/include -I$(CURDIR)/include/generated
 CFLAGS		+= -I$(CURDIR)/include/linux -I$(CURDIR)/lib/libfdt
-CFLAGS		+= -I$(CURDIR)/include/lib/libfex
 CFLAGS		+= -D__KERNEL__
 
 LOADADDR	:= 0x40008000

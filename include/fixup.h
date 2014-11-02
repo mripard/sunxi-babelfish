@@ -1,7 +1,7 @@
 #ifndef _FIXUP_H_
 #define _FIXUP_H_
 
-#include <script.h>
+#include <lib/libfex/script.h>
 #include <soc.h>
 
 #include <uapi/asm/setup.h>
