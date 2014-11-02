@@ -12,7 +12,7 @@
 #define CONSOLE_MAX_LEN		255
 #define SUNXI_MAX_UARTS		8
 
-static int fdt_fixup_append_bootargs(void *fdt, char *bootargs)
+static int fdt_fixup_append_bootargs(void *fdt, const char *bootargs)
 {
 	int offset, ret, len;
 	const char *old_args = NULL;
@@ -163,9 +163,9 @@ static int fdt_fixup_uarts(struct soc *soc, void *fdt, struct script *script)
 	return 0;
 }
 
-static int fdt_fixup_atags(void *fdt, struct tag *atags)
+static int fdt_fixup_atags(void *fdt, const struct tag *atags)
 {
-	struct tag *atag = atags;
+	const struct tag *atag = atags;
 	uint32_t mem_reg[2];
 	int offset;
 
@@ -199,7 +199,7 @@ static int fdt_fixup_atags(void *fdt, struct tag *atags)
 	return 0;
 }
 
-int fdt_fixup(struct soc *soc, void *fdt, struct script *script, struct tag *atags)
+int fdt_fixup(struct soc *soc, void *fdt, struct script *script, const struct tag *atags)
 {
 	int ret;
 
