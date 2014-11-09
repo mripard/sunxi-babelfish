@@ -67,14 +67,14 @@ out/zImage.bin: $(ZIMAGE)
 babelfish: version.h $(OBJS) $(DTBS) out/zImage.bin
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(DTBS) out/zImage.bin
 
-babelfish.bin: babelfish
+all: zImage
+zImage: babelfish
 	$(OBJCOPY) -O binary --set-section-flags .bss=alloc,load,contents $^ $@
 
-all: uImage
-uImage: babelfish.bin
+uImage: zImage
 	mkimage -A arm -O linux -C none -T kernel \
 		-a $(LOADADDR) -e $(LOADADDR) \
 		-n "Allwinner BabelFish" -d $^ $@
 
 clean:
-	rm -fr babelfish babelfish.bin include/generated out uImage
+	rm -fr babelfish zImage include/generated out uImage

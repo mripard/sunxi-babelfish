@@ -1,7 +1,7 @@
 include/generated
 out/
 babelfish
-babelfish.bin
+zImage
 uImage
 *~
 *.swp
