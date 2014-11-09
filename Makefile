@@ -43,6 +43,10 @@ out/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $^
 
+out/%.o: %.S
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -D__ASSEMBLY__ -c -o $@ $^
+
 out/%.dtb: %.dtsi
 	mkdir -p $(dir $@)
 	$(DTC) -I dts -O dtb -o $@ $^

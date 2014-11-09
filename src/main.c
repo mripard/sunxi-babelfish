@@ -16,7 +16,7 @@
 extern u32 _binary_zImage_bin_start;
 
 void main(u32 dummy, u32 machid, const struct tag *tags)
-	__attribute__((section(".text_main")));
+	__attribute__((section(".main")));
 
 void main(u32 dummy, u32 machid, const struct tag *tags)
 {

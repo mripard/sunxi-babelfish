@@ -1,5 +1,11 @@
 SECTIONS {
-	.text : { * (.text_main); * (.text); }
+	.text :
+	{
+		_start = .;
+		* (.start);
+		* (.main);
+		* (.text);
+	}
 	.data :
 	{
 		* (.data)
@@ -20,4 +26,9 @@ SECTIONS {
 	{
 		* (.bss);
 	}
+	. = ALIGN(4);
+	_edata  = .;
+
+	_magic_start = _start;
+	_magic_end = _edata;
 }

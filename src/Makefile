@@ -1,6 +1,6 @@
 FILE_PATH	:= $(call my-dir)
 
-FILE_OBJS	:=
+FILE_OBJS	:= head.o
 FILE_OBJS	+= fdt_tools.o
 FILE_OBJS	+= fixup.o
 FILE_OBJS	+= main.o
