@@ -18,6 +18,18 @@ _start:
 	adr	r3, _start	@ Retrieve the address we've been
 				@ started from
 
+	ldr	sp, =stack_end	@ Initialize the stack pointer at
+				@ the (relative) end of the section
+
+	sub	sp, sp, #4	@ The end pointer is the same than the
+				@ next section start pointer. In order
+				@ to avoid conflicting with the heap,
+				@ decrement the stack pointer
+
+	add	sp, sp, r3	@ Increment the address of the stack
+				@ by the absolute address we were
+				@ started at
+
 	ldr	r4, =heap	@ Retrieve our heap (relative) base address
 	add	r4, r4, r3	@ Increment it by the absolute offset
 	ldr	r5, =heap_base	@ Retrieve the heap base variable
@@ -36,6 +48,12 @@ exec_base:
 	.global	heap_base
 heap_base:
 	.word	0x0
+
+	.align
+	.section ".stack", "aw", %nobits
+stack:
+	.space	4096
+stack_end:
 
 	.align
 	.section ".heap", "aw", %nobits

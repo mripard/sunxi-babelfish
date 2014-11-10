@@ -45,6 +45,11 @@ SECTIONS {
 		* (.bss);
 	}
 
+	.stack :
+	{
+		* (.stack);
+	}
+
 	.heap :
 	{
 		* (.heap);
