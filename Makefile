@@ -9,7 +9,7 @@ CFLAGS		+= -I$(CURDIR)/include -I$(CURDIR)/include/generated
 CFLAGS		+= -I$(CURDIR)/include/linux -I$(CURDIR)/lib/libfdt
 CFLAGS		+= -D__KERNEL__
 
-LOADADDR	:= 0x40008000
+LOADADDR	?= 0x40008000
 
 LDFLAGS		:= -static -nostdlib
 LDFLAGS		+= -T babelfish.lds
