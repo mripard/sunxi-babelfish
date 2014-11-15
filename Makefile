@@ -5,7 +5,7 @@ OBJCOPY		:= $(CROSS_COMPILE)objcopy
 LD		:= $(CROSS_COMPILE)ld
 DTC		:= dtc
 
-CFLAGS		:= -Wall -ffreestanding -nostdinc -marm
+CFLAGS		:= -Wall -ffreestanding -nostdinc -marm -fpic
 CFLAGS		+= -I$(CURDIR)/include -I$(CURDIR)/include/generated
 CFLAGS		+= -I$(CURDIR)/include/linux -I$(CURDIR)/lib/libfdt
 
@@ -13,7 +13,6 @@ LOADADDR	?= 0x40008000
 
 LDFLAGS		:= -static -nostdlib
 LDFLAGS		+= -T babelfish.lds
-LDFLAGS		+= -Ttext $(LOADADDR)
 
 OBJS		:=
 DTBS		:=

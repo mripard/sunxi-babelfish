@@ -1,15 +1,15 @@
 SECTIONS {
+	 /DISCARD/ : {
+		* (.data);
+		* (.data.*);
+	}
+
 	.text :
 	{
 		_start = .;
 		* (.start);
 		* (.main);
 		* (.text);
-	}
-
-	.data :
-	{
-		* (.data);
 	}
 
 	.dtbs :
@@ -43,6 +43,11 @@ SECTIONS {
 	.bss :
 	{
 		* (.bss);
+	}
+
+	.heap :
+	{
+		* (.heap);
 	}
 
 	_magic_start = _start;

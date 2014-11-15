@@ -55,42 +55,49 @@
 
 #include "libfdt_internal.h"
 
-struct fdt_errtabent {
-	const char *str;
-};
-
-#define FDT_ERRTABENT(val) \
-	[(val)] = { .str = #val, }
-
-static struct fdt_errtabent fdt_errtable[] = {
-	FDT_ERRTABENT(FDT_ERR_NOTFOUND),
-	FDT_ERRTABENT(FDT_ERR_EXISTS),
-	FDT_ERRTABENT(FDT_ERR_NOSPACE),
-
-	FDT_ERRTABENT(FDT_ERR_BADOFFSET),
-	FDT_ERRTABENT(FDT_ERR_BADPATH),
-	FDT_ERRTABENT(FDT_ERR_BADSTATE),
-
-	FDT_ERRTABENT(FDT_ERR_TRUNCATED),
-	FDT_ERRTABENT(FDT_ERR_BADMAGIC),
-	FDT_ERRTABENT(FDT_ERR_BADVERSION),
-	FDT_ERRTABENT(FDT_ERR_BADSTRUCTURE),
-	FDT_ERRTABENT(FDT_ERR_BADLAYOUT),
-};
-#define FDT_ERRTABSIZE	(sizeof(fdt_errtable) / sizeof(fdt_errtable[0]))
-
 const char *fdt_strerror(int errval)
 {
 	if (errval > 0)
 		return "<valid offset/length>";
-	else if (errval == 0)
+
+	switch (errval) {
+	case 0:
 		return "<no error>";
-	else if (errval > -FDT_ERRTABSIZE) {
-		const char *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+	case FDT_ERR_NOTFOUND:
+		return "FDT_ERR_NOTFOUND";
+
+	case FDT_ERR_EXISTS:
+		return "FDT_ERR_EXISTS";
+
+	case FDT_ERR_NOSPACE:
+		return "FDT_ERR_NOSPACE";
+
+	case FDT_ERR_BADOFFSET:
+		return "FDT_ERR_BADOFFSET";
+
+	case FDT_ERR_BADPATH:
+		return "FDT_ERR_BADPATH";
+
+	case FDT_ERR_BADSTATE:
+		return "FDT_ERR_BADSTATE";
+
+	case FDT_ERR_TRUNCATED:
+		return "FDT_ERR_TRUNCATED";
+
+	case FDT_ERR_BADMAGIC:
+		return "FDT_ERR_BADMAGIC";
+
+	case FDT_ERR_BADVERSION:
+		return "FDT_ERR_BADVERSION";
+
+	case FDT_ERR_BADSTRUCTURE:
+		return "FDT_ERR_BADSTRUCTURE";
+
+	case FDT_ERR_BADLAYOUT:
+		return "FDT_ERR_BADLAYOUT";
+
+	default:
+		return "<unknown error>";
 	}
-
-	return "<unknown error>";
 }
