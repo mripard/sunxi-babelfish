@@ -5,7 +5,7 @@ OBJCOPY		:= $(CROSS_COMPILE)objcopy
 LD		:= $(CROSS_COMPILE)ld
 DTC		:= dtc
 
-CFLAGS		:= -Wall -ffreestanding -nostdinc
+CFLAGS		:= -Wall -ffreestanding -nostdinc -marm
 CFLAGS		+= -I$(CURDIR)/include -I$(CURDIR)/include/generated
 CFLAGS		+= -I$(CURDIR)/include/linux -I$(CURDIR)/lib/libfdt
 CFLAGS		+= -D__KERNEL__
