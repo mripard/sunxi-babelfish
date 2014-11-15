@@ -8,7 +8,6 @@ DTC		:= dtc
 CFLAGS		:= -Wall -ffreestanding -nostdinc -marm
 CFLAGS		+= -I$(CURDIR)/include -I$(CURDIR)/include/generated
 CFLAGS		+= -I$(CURDIR)/include/linux -I$(CURDIR)/lib/libfdt
-CFLAGS		+= -D__KERNEL__
 
 LOADADDR	?= 0x40008000
 
@@ -42,7 +41,7 @@ DTBS := $(addprefix out/, $(DTBS))
 
 out/%.o: %.c
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) -D__KERNEL__ -c -o $@ $^
 
 out/%.o: %.S
 	mkdir -p $(dir $@)
