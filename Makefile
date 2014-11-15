@@ -1,4 +1,5 @@
 # Makefile for Allwinner Babelfish FEX-to-DT translator
+AS		:= $(CROSS_COMPILE)as
 CC		:= $(CROSS_COMPILE)gcc
 OBJCOPY		:= $(CROSS_COMPILE)objcopy
 LD		:= $(CROSS_COMPILE)ld
