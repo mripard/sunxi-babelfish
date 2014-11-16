@@ -29,7 +29,7 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 	putstr(VERSION);
 	putstr(" (FEX to DT translator) ++\n\n");
 
-	soc = match_soc(machid);
+	soc = match_soc();
 	if (!soc)
 		return;
 
