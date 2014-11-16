@@ -39,9 +39,14 @@ include dtsi/Makefile
 DTBS += $(addprefix $(FILE_PATH), $(FILE_DTBS))
 DTBS := $(addprefix out/, $(DTBS))
 
-out/%.o: %.c
+.PHONY: include/generated/version.h
+include/generated/version.h:
+	mkdir -p include/generated
+	./genver.sh > include/generated/version.h
+
+out/%.o: %.c include/generated/version.h
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -D__KERNEL__ -c -o $@ $^
+	$(CC) $(CFLAGS) -D__KERNEL__ -c -o $@ $<
 
 out/%.o: %.S
 	mkdir -p $(dir $@)
@@ -54,18 +59,14 @@ out/%.dtb: %.dtsi
 	$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
 		--rename-section .data=.$(notdir $*) $(notdir $@) $(notdir $@);)
 
-version.h:
-	mkdir -p include/generated
-	./genver.sh > include/generated/version.h
-
 out/zImage.bin: $(ZIMAGE)
 	cp $(ZIMAGE) $@
 	(cd $(dir $@); \
 	$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
 		--rename-section .data=.$(notdir $*) $(notdir $@) $(notdir $@);)
 
-babelfish: version.h $(OBJS) $(DTBS) out/zImage.bin
-	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(DTBS) out/zImage.bin
+babelfish: $(OBJS) $(DTBS) out/zImage.o
+	$(LD) $(LDFLAGS) -o $@ $^
 
 all: zImage
 zImage: babelfish
