@@ -56,6 +56,7 @@ struct soc *match_soc(u32 machid)
 		putstr("Unrecognized mach-id: 0x");
 		printhex(machid);
 		putstr("\n");
+		return NULL;
 	}
 
 	return soc;

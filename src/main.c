@@ -30,6 +30,8 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 	putstr(" (FEX to DT translator) ++\n\n");
 
 	soc = match_soc(machid);
+	if (!soc)
+		return;
 
 	putstr("Detected SoC: ");
 	if (soc->compatible) {
