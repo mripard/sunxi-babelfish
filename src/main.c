@@ -13,7 +13,7 @@
 #define SCRIPT_BASE_ADDRESS	(void*)0x43000000
 #define FDT_BASE_ADDRESS	(void*)0x45000000
 
-extern u32 _binary_zImage_bin_start;
+extern u32 zImage_start;
 
 void main(u32 dummy, u32 machid, const struct tag *tags)
 	__attribute__((section(".main")));
@@ -54,7 +54,7 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 		return;
 	}
 
-	start_kernel = (void (*) (u32, u32, void*)) &_binary_zImage_bin_start;
+	start_kernel = (void (*) (u32, u32, void*)) &zImage_start;
 	putstr("Booting Linux...\n");
 	start_kernel(0, 0xffffffff, FDT_BASE_ADDRESS);
 }

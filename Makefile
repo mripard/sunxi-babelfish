@@ -38,6 +38,7 @@ OBJS := $(addprefix out/, $(OBJS))
 include dtsi/Makefile
 DTBS += $(addprefix $(FILE_PATH), $(FILE_DTBS))
 DTBS := $(addprefix out/, $(DTBS))
+DTBS := $(addsuffix .o, $(DTBS))
 
 .PHONY: include/generated/version.h
 include/generated/version.h:
@@ -55,15 +56,19 @@ out/%.o: %.S
 out/%.dtb: %.dtsi
 	mkdir -p $(dir $@)
 	$(DTC) -I dts -O dtb -o $@ $^
-	(cd $(dir $@); \
-	$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
-		--rename-section .data=.$(notdir $*) $(notdir $@) $(notdir $@);)
 
-out/zImage.bin: $(ZIMAGE)
-	cp $(ZIMAGE) $@
-	(cd $(dir $@); \
-	$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
-		--rename-section .data=.$(notdir $*) $(notdir $@) $(notdir $@);)
+out/%.dtb.S: out/%.dtb
+	mkdir -p $(dir $@)
+	@echo '.section .dtbs.$(*F),"aw"' > $@
+	@echo '.global dtb_$(subst -,_,$(*F))' >> $@
+	@echo 'dtb_$(subst -,_,$(*F)):' >> $@
+	@echo '.incbin "$^"' >> $@
+
+out/zImage.S: $(ZIMAGE)
+	@echo '.section .zimage,"a"' > $@
+	@echo '.global zImage_start' >> $@
+	@echo 'zImage_start:' >> $@
+	@echo '.incbin "$^"' >> $@
 
 babelfish: $(OBJS) $(DTBS) out/zImage.o
 	$(LD) $(LDFLAGS) -o $@ $^
