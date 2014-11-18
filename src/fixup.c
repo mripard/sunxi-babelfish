@@ -8,7 +8,6 @@
 #include <uapi/asm/setup.h>
 
 #define FDT_PINCTRL_PATH	"/soc@01c00000/pinctrl@01c20800"
-#define FIXUP_BASE_CMDLINE	"earlyprintk"
 #define CONSOLE_MAX_LEN		255
 #define SUNXI_MAX_UARTS		8
 
@@ -202,10 +201,6 @@ int fdt_fixup_from_atags(void *fdt, const struct tag *atags)
 int fdt_fixup_from_fex(struct soc *soc, void *fdt, struct script *script)
 {
 	int ret;
-
-	ret = fdt_fixup_append_bootargs(fdt, FIXUP_BASE_CMDLINE);
-	if (ret)
-		return ret;
 
 	ret = fdt_fixup_machine(soc, fdt, script);
 	if (ret)
