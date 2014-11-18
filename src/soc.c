@@ -4,11 +4,21 @@
 #include <soc.h>
 #include <types.h>
 
+#ifndef CUSTOM_DTB
 extern u32 dtb_sun4i_a10;
 extern u32 dtb_sun5i_a10s;
 extern u32 dtb_sun5i_a13;
 extern u32 dtb_sun6i_a31;
 extern u32 dtb_sun7i_a20;
+#else
+extern u32 dtb_custom;
+
+#define dtb_sun4i_a10	dtb_custom
+#define dtb_sun5i_a10s	dtb_custom
+#define dtb_sun5i_a13	dtb_custom
+#define dtb_sun6i_a31	dtb_custom
+#define dtb_sun7i_a20	dtb_custom
+#endif
 
 #define SRAM_BASE	0x01c00000
 

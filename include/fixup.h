@@ -6,6 +6,7 @@
 
 #include <uapi/asm/setup.h>
 
-int fdt_fixup(struct soc *soc, void *fdt, struct script *script, const struct tag *atags);
+int fdt_fixup_from_atags(void *fdt, const struct tag *atags);
+int fdt_fixup_from_fex(struct soc *soc, void *fdt, struct script *script);
 
 #endif

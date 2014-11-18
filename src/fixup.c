@@ -163,7 +163,7 @@ static int fdt_fixup_uarts(struct soc *soc, void *fdt, struct script *script)
 	return 0;
 }
 
-static int fdt_fixup_atags(void *fdt, const struct tag *atags)
+int fdt_fixup_from_atags(void *fdt, const struct tag *atags)
 {
 	const struct tag *atag = atags;
 	uint32_t mem_reg[2];
@@ -199,15 +199,11 @@ static int fdt_fixup_atags(void *fdt, const struct tag *atags)
 	return 0;
 }
 
-int fdt_fixup(struct soc *soc, void *fdt, struct script *script, const struct tag *atags)
+int fdt_fixup_from_fex(struct soc *soc, void *fdt, struct script *script)
 {
 	int ret;
 
 	ret = fdt_fixup_append_bootargs(fdt, FIXUP_BASE_CMDLINE);
-	if (ret)
-		return ret;
-
-	ret = fdt_fixup_atags(fdt, atags);
 	if (ret)
 		return ret;
 

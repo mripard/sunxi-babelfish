@@ -51,21 +51,34 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 		return;
 	}
 
+	abs_fdt = abs_addr(soc->fdt);
+	ret = fdt_open_into(abs_fdt, FDT_BASE_ADDRESS,
+			    2 * fdt_totalsize(abs_fdt));
+	if (ret) {
+		putstr("Error opening the device tree\n");
+		return;
+	}
+
+	ret = fdt_fixup_from_atags(FDT_BASE_ADDRESS, tags);
+	if (ret) {
+		putstr("Couldn't fixup the device tree with ATAGS\n");
+		return;
+	}
+
+#ifndef CUSTOM_DTB
 	script = script_new();
 	ret = script_decompile_bin(SCRIPT_BASE_ADDRESS, script);
 	if (!ret)
 		return;
 
-	abs_fdt = abs_addr(soc->fdt);
-	ret = fdt_open_into(abs_fdt, FDT_BASE_ADDRESS,
-			    2 * fdt_totalsize(abs_fdt));
-	ret = fdt_fixup(soc, FDT_BASE_ADDRESS, script, tags);
+	ret = fdt_fixup_from_fex(soc, FDT_BASE_ADDRESS, script);
 	if (ret) {
 		putstr("Error in fdt_fixup ");
 		printhex(ret);
 		putstr("\n");
 		return;
 	}
+#endif
 
 	start_kernel = (kernel_entry)abs_addr(&zImage_start);
 	putstr("Booting Linux...\n");

@@ -15,6 +15,8 @@ SECTIONS {
 	.dtbs :
 	{
 		. = ALIGN(4);
+		* (.dtbs.custom)
+		. = ALIGN(4);
 		* (.dtbs.sun4i-a10)
 		. = ALIGN(4);
 		* (.dtbs.sun5i-a10s)

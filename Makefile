@@ -34,10 +34,15 @@ include src/Makefile
 
 OBJS := $(addprefix out/, $(OBJS))
 
+ifndef DTB
 include dtsi/Makefile
 DTBS += $(addprefix $(FILE_PATH), $(FILE_DTBS))
 DTBS := $(addprefix out/, $(DTBS))
 DTBS := $(addsuffix .o, $(DTBS))
+else
+DTBS := out/dtsi/custom.dtb.o
+CFLAGS += -DCUSTOM_DTB
+endif
 
 .PHONY: include/generated/version.h
 include/generated/version.h:
@@ -51,6 +56,10 @@ out/%.o: %.c include/generated/version.h
 out/%.o: %.S
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -D__ASSEMBLY__ -c -o $@ $^
+
+out/dtsi/custom.dtb: $(DTB)
+	mkdir -p $(dir $@)
+	cp $(DTB) $@
 
 out/%.dtb: %.dtsi
 	mkdir -p $(dir $@)
