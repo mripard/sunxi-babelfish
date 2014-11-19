@@ -23,15 +23,31 @@ static inline void *abs_addr(void* rel_addr)
 	return rel_addr + exec_base;
 }
 
+static void cortex_a7_init_quirks()
+{
+	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
+	asm volatile(
+		"mrc p15, 0, r0, c1, c0, 1\n"
+		"orr r0, r0, #0x40\n"
+		"mcr p15, 0, r0, c1, c0, 1\n");
+
+	/* Set arch timers frequency */
+	asm volatile("mcr p15, 0, %0, c14, c0, 0"
+		     :
+		     : "r"(24000000));
+}
+
+
 void main(u32 dummy, u32 machid, const struct tag *tags)
 	__attribute__((section(".main")));
 
 void main(u32 dummy, u32 machid, const struct tag *tags)
 {
 	kernel_entry start_kernel;
-	void *abs_fdt;
 	struct script *script;
 	struct soc *soc;
+	u32 cpuid, midr;
+	void *abs_fdt;
 	int ret;
 
 	putstr("++ Allwinner Babelfish ");
@@ -79,6 +95,17 @@ void main(u32 dummy, u32 machid, const struct tag *tags)
 		return;
 	}
 #endif
+
+	/* Read Main ID Register to identify CPU core */
+	asm volatile (
+		"mrc p15, 0, %0, c0, c0, 0\n"
+		: "=r" (midr));
+
+	cpuid = (midr & 0xffff) >> 4;
+	if (cpuid == 0xc07) {
+		putstr("Cortex-A7 based SoCs.... Applying appropriate init quirks\n");
+		cortex_a7_init_quirks();
+	}
 
 	start_kernel = (kernel_entry)abs_addr(&zImage_start);
 	putstr("Booting Linux...\n");
